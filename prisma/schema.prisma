@@ -5,6 +5,20 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum AccountType {
+  CHECKING
+  SAVINGS
+  VAULT
+  INVESTMENT
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
 model User {
   id           Int       @id @default(autoincrement())
   name         String
@@ -12,5 +26,56 @@ model User {
   passwordHash String
   createdAt    DateTime  @default(now())
 
+  accounts       Account[]
+  categories     Category[]
+  transactions   Transaction[]
+}
 
+model Account {
+  id             Int         @id @default(autoincrement())
+  name           String
+  type           AccountType
+  initialBalance Decimal     @db.Decimal(12, 2)
+  createdAt      DateTime    @default(now())
+
+  userId         Int
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  outgoingTransactions Transaction[] @relation("FromAccount")
+  incomingTransactions Transaction[] @relation("ToAccount")
+}
+
+model Category {
+  id           Int         @id @default(autoincrement())
+  name         String
+  createdAt    DateTime    @default(now())
+
+  userId       Int
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([name, userId])
+
+  transactions Transaction[]
+}
+
+model Transaction {
+  id          Int             @id @default(autoincrement())
+  title       String
+  description String?
+  amount      Decimal         @db.Decimal(12, 2)
+  type        TransactionType
+  date        DateTime
+  createdAt   DateTime        @default(now())
+
+  userId      Int
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  accountId   Int?
+  account     Account?        @relation("FromAccount", fields: [accountId], references: [id])
+
+  toAccountId Int?
+  toAccount   Account?        @relation("ToAccount", fields: [toAccountId], references: [id])
+
+  categoryId  Int?
+  category    Category?       @relation(fields: [categoryId], references: [id])
 }
