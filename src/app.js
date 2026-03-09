@@ -1,16 +1,27 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-
-import router from "./routes/index.js";
-
 dotenv.config();
 
-const app = express();
+import index from "./routes/index.js";
+import authRouter from "./routes/authRouter.js";
 
-app.use(cors());
-app.use(express.json());
+class App {
+  constructor() {
+    this.app = express();
+    this.middleware();
+    this.router();
+  }
 
-app.use("/api", router);
+  middleware() {
+    this.app.use(cors());
+    this.app.use(express.json());
+  }
 
-export default app;
+  router() {
+    this.app.use("/", index);
+    this.app.use("/auth", authRouter);
+  }
+}
+
+export default new App().app;
