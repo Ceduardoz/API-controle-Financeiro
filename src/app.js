@@ -5,6 +5,7 @@ dotenv.config();
 
 import index from "./routes/index.js";
 import authRouter from "./routes/authRouter.js";
+import accountRouter from "./routes/accountRouter.js";
 
 class App {
   constructor() {
@@ -21,6 +22,7 @@ class App {
   router() {
     this.app.use("/", index);
     this.app.use("/auth", authRouter);
+    this.app.use("/account", accountRouter);
   }
 }
 
