@@ -19,6 +19,13 @@ enum TransactionType {
   TRANSFER
 }
 
+enum RecurrenceFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
 model User {
   id           Int       @id @default(autoincrement())
   name         String
@@ -29,6 +36,7 @@ model User {
   accounts       Account[]
   categories     Category[]
   transactions   Transaction[]
+  recurringTransactions RecurringTransaction[]
 }
 
 model Account {
@@ -43,6 +51,8 @@ model Account {
 
   outgoingTransactions Transaction[] @relation("FromAccount")
   incomingTransactions Transaction[] @relation("ToAccount")
+
+  recurringTransactions RecurringTransaction[]
 }
 
 model Category {
@@ -56,6 +66,7 @@ model Category {
   @@unique([name, userId])
 
   transactions Transaction[]
+  recurringTransactions RecurringTransaction[]
 }
 
 model Transaction {
@@ -78,4 +89,35 @@ model Transaction {
 
   categoryId  Int?
   category    Category?       @relation(fields: [categoryId], references: [id])
+
+  recurringTransactionID Int?
+  recurringTransaction RecurringTransaction? @relation(fields: [recurringTransactionID], references: [id]) 
+}
+
+model RecurringTransaction {
+  id           Int                 @id @default(autoincrement())
+  title        String
+  description  String?
+  amount       Decimal             @db.Decimal(12, 2)
+  type         TransactionType
+  frequency    RecurrenceFrequency
+  dayOfMonth   Int?
+  dayOfWeek    Int?
+  monthOfYear  Int?
+  startDate    DateTime
+  endDate      DateTime?
+  isActive     Boolean             @default(true)
+  lastRunAt    DateTime?
+  createdAt    DateTime            @default(now())
+
+  userId       Int
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  accountId    Int
+  account      Account             @relation(fields: [accountId], references: [id])
+
+  categoryId   Int?
+  category     Category?           @relation(fields: [categoryId], references: [id])
+
+  transactions Transaction[]
 }
