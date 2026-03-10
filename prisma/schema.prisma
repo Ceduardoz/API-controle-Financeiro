@@ -26,6 +26,13 @@ enum RecurrenceFrequency {
   YEARLY
 }
 
+enum InvestmentType {
+  CDB
+  CDI
+  LCI
+  LCA
+}
+
 model User {
   id           Int       @id @default(autoincrement())
   name         String
@@ -37,6 +44,7 @@ model User {
   categories     Category[]
   transactions   Transaction[]
   recurringTransactions RecurringTransaction[]
+  investiments Investment[]
 }
 
 model Account {
@@ -120,4 +128,18 @@ model RecurringTransaction {
   category     Category?           @relation(fields: [categoryId], references: [id])
 
   transactions Transaction[]
+}
+
+model Investment {
+  id              Int            @id @default(autoincrement())
+  name            String
+  type            InvestmentType
+  institution     String?
+  investedAmount  Decimal        @db.Decimal(12,2)
+  annualRate      Decimal        @db.Decimal(5,2) // taxa anual (%)
+  startDate       DateTime
+  createdAt       DateTime       @default(now())
+
+  userId          Int
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
