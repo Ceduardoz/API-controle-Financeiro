@@ -7,15 +7,20 @@ import {
   deleteAccount as deleteAccountServices,
 } from "../services/accountServices.js";
 
-const accountSchema = z.object({
+const createAccountSchema = z.object({
   name: z.string().min(2),
   type: z.enum(["CHECKING", "SAVINGS", "VAULT", "INVESTMENT"]),
-  initialBalance: z.coerce.number(),
+  initialBalance: z.coerce.number().nonnegative(),
+});
+
+const updateAccountSchema = z.object({
+  name: z.string().min(2).optional(),
+  type: z.enum(["CHECKING", "SAVINGS", "VAULT", "INVESTMENT"]).optional(),
 });
 
 export async function createAccount(req, res) {
   try {
-    const data = accountSchema.parse(req.body);
+    const data = createAccountSchema.parse(req.body);
 
     const account = await createAccountServices(req.userId, data);
 
@@ -36,7 +41,7 @@ export async function getAccount(req, res) {
 }
 
 export async function updateAccount(req, res) {
-  const data = accountSchema.partial().parse(req.body);
+  const data = updateAccountSchema.partial().parse(req.body);
 
   const account = await updateAccountServices(req.userId, req.params.id, data);
 

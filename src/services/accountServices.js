@@ -97,9 +97,6 @@ export async function updateAccount(userId, id, data) {
     data: {
       ...(data.name !== undefined && { name: data.name }),
       ...(data.type !== undefined && { type: data.type }),
-      ...(data.initialBalance !== undefined && {
-        initialBalance: data.initialBalance,
-      }),
     },
   });
 }
