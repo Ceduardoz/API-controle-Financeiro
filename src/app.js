@@ -8,6 +8,7 @@ import authRouter from "./routes/authRouter.js";
 import accountRouter from "./routes/accountRouter.js";
 import categoryRouter from "./routes/categoryRouter.js";
 import transactionRouter from "./routes/transactionRouter.js";
+import recurringTransactionRouter from "./routes/recurringTransactionRouter.js";
 
 class App {
   constructor() {
@@ -27,6 +28,7 @@ class App {
     this.app.use("/account", accountRouter);
     this.app.use("/category", categoryRouter);
     this.app.use("/transactions", transactionRouter);
+    this.app.use("/recurring-transaction", recurringTransactionRouter);
   }
 }
 
