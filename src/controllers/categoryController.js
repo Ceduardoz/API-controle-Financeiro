@@ -1,4 +1,3 @@
-import { z } from "zod";
 import {
   createCategory as createCategoryService,
   getCategories as getCategoriesService,
@@ -6,14 +5,10 @@ import {
   updateCategory as updateCategoryService,
   deleteCategory as deleteCategoryService,
 } from "../services/categoryServices.js";
-
-const createCategorySchema = z.object({
-  name: z.string().min(2, "O nome deve ter pelo menos 2 caracteres").trim(),
-});
-
-const updateCategorySchema = z.object({
-  name: z.string().min(2, "O nome deve ter pelo menos 2 caracteres").trim(),
-});
+import {
+  createCategorySchema,
+  updateCategorySchema,
+} from "../schemas/categorySchemas.js";
 
 export async function createCategory(req, res) {
   try {

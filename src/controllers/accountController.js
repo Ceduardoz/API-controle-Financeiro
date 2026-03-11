@@ -1,4 +1,3 @@
-import { z } from "zod";
 import {
   createAccount as createAccountServices,
   getAccounts as getAccountsServices,
@@ -6,17 +5,10 @@ import {
   updateAccount as updateAccountServices,
   deleteAccount as deleteAccountServices,
 } from "../services/accountServices.js";
-
-const createAccountSchema = z.object({
-  name: z.string().min(2),
-  type: z.enum(["CHECKING", "SAVINGS", "VAULT", "INVESTMENT"]),
-  initialBalance: z.coerce.number().nonnegative(),
-});
-
-const updateAccountSchema = z.object({
-  name: z.string().min(2).optional(),
-  type: z.enum(["CHECKING", "SAVINGS", "VAULT", "INVESTMENT"]).optional(),
-});
+import {
+  createAccountSchema,
+  updateAccountSchema,
+} from "../schemas/accountSchema.js";
 
 export async function createAccount(req, res) {
   try {

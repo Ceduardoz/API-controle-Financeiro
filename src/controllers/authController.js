@@ -1,20 +1,9 @@
-import { z } from "zod";
 import {
   registerUser,
   loginUser,
   getProfile,
 } from "../services/authServices.js";
-
-const registerSchema = z.object({
-  name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
-  email: z.email("email inválido."),
-  password: z.string().min(8, "A senha precisa ter pelo menos 8 caracteres."),
-});
-
-const loginSchema = z.object({
-  email: z.email("email inválido"),
-  password: z.string().min(8, "A senha precisa ter pelo menos 8 caracteres."),
-});
+import { registerSchema, loginSchema } from "../schemas/authSchemas.js";
 
 export async function register(req, res) {
   try {
