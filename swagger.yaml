@@ -1,18 +1,18 @@
 openapi: 3.0.3
 info:
   title: API Controle Financeiro
-  version: 1.0.0
+  version: 1.1.0
   description: API REST para controle financeiro com autenticação, contas, transações, categorias, recorrências, investimentos e dashboard.
 
 servers:
   - url: http://localhost:3333
     description: Servidor local
-
-  - url: https://api-controle-financeiro-a1yr.onrender.com/
+  - url: https://api-controle-financeiro-a1yr.onrender.com
     description: Servidor em produção
 
 tags:
   - name: Auth
+  - name: Users
   - name: Accounts
   - name: Categories
   - name: Transactions
@@ -35,6 +35,14 @@ components:
           type: string
       example:
         message: Erro ao processar requisição
+
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      example:
+        message: Operação realizada com sucesso
 
     RegisterRequest:
       type: object
@@ -521,8 +529,16 @@ paths:
       responses:
         "201":
           description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
         "400":
           description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /auth/login:
     post:
@@ -543,6 +559,10 @@ paths:
                 $ref: "#/components/schemas/AuthResponse"
         "401":
           description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /auth/me:
     get:
@@ -559,6 +579,39 @@ paths:
                 $ref: "#/components/schemas/User"
         "401":
           description: Não autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/me:
+    delete:
+      tags: [Users]
+      summary: Deletar usuário autenticado
+      description: Remove permanentemente a conta do usuário autenticado.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Usuário deletado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+              example:
+                message: Usuário deletado com sucesso
+        "401":
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /account:
     get:
@@ -575,6 +628,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Account"
+        "401":
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     post:
       tags: [Accounts]
       summary: Criar conta
@@ -589,6 +648,16 @@ paths:
       responses:
         "201":
           description: Conta criada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "400":
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /account/{id}:
     get:
@@ -611,6 +680,10 @@ paths:
                 $ref: "#/components/schemas/Account"
         "404":
           description: Conta não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     patch:
       tags: [Accounts]
       summary: Atualizar conta
@@ -631,6 +704,22 @@ paths:
       responses:
         "200":
           description: Conta atualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "400":
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Conta não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     delete:
       tags: [Accounts]
       summary: Deletar conta
@@ -645,6 +734,12 @@ paths:
       responses:
         "204":
           description: Conta removida
+        "404":
+          description: Conta não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /categories:
     get:
@@ -655,6 +750,18 @@ paths:
       responses:
         "200":
           description: Lista de categorias
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+        "401":
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     post:
       tags: [Categories]
       summary: Criar categoria
@@ -669,6 +776,16 @@ paths:
       responses:
         "201":
           description: Categoria criada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "400":
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /categories/{id}:
     get:
@@ -685,6 +802,16 @@ paths:
       responses:
         "200":
           description: Categoria encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "404":
+          description: Categoria não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     patch:
       tags: [Categories]
       summary: Atualizar categoria
@@ -705,6 +832,22 @@ paths:
       responses:
         "200":
           description: Categoria atualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "400":
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Categoria não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     delete:
       tags: [Categories]
       summary: Deletar categoria
@@ -719,6 +862,12 @@ paths:
       responses:
         "204":
           description: Categoria removida
+        "404":
+          description: Categoria não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /transactions:
     get:
@@ -729,6 +878,18 @@ paths:
       responses:
         "200":
           description: Lista de transações
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transaction"
+        "401":
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     post:
       tags: [Transactions]
       summary: Criar transação
@@ -743,8 +904,16 @@ paths:
       responses:
         "201":
           description: Transação criada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
         "400":
           description: Erro de validação ou saldo insuficiente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /transactions/{id}:
     get:
@@ -761,8 +930,16 @@ paths:
       responses:
         "200":
           description: Transação encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
         "404":
           description: Transação não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /recurring-transactions:
     get:
@@ -773,6 +950,18 @@ paths:
       responses:
         "200":
           description: Lista de lançamentos recorrentes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RecurringTransaction"
+        "401":
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     post:
       tags: [Recurring Transactions]
       summary: Criar lançamento recorrente
@@ -787,6 +976,16 @@ paths:
       responses:
         "201":
           description: Lançamento recorrente criado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecurringTransaction"
+        "400":
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /recurring-transactions/{id}:
     get:
@@ -803,6 +1002,16 @@ paths:
       responses:
         "200":
           description: Lançamento recorrente encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecurringTransaction"
+        "404":
+          description: Lançamento recorrente não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     patch:
       tags: [Recurring Transactions]
       summary: Atualizar lançamento recorrente
@@ -823,6 +1032,22 @@ paths:
       responses:
         "200":
           description: Lançamento recorrente atualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecurringTransaction"
+        "400":
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Lançamento recorrente não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     delete:
       tags: [Recurring Transactions]
       summary: Deletar lançamento recorrente
@@ -837,6 +1062,12 @@ paths:
       responses:
         "204":
           description: Lançamento recorrente removido
+        "404":
+          description: Lançamento recorrente não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /recurring-transactions/process/run:
     post:
@@ -847,6 +1078,16 @@ paths:
       responses:
         "200":
           description: Processamento concluído
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /investments:
     get:
@@ -857,6 +1098,18 @@ paths:
       responses:
         "200":
           description: Lista de investimentos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Investment"
+        "401":
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     post:
       tags: [Investments]
       summary: Criar investimento
@@ -871,6 +1124,16 @@ paths:
       responses:
         "201":
           description: Investimento criado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Investment"
+        "400":
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /investments/{id}:
     get:
@@ -887,6 +1150,16 @@ paths:
       responses:
         "200":
           description: Investimento encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Investment"
+        "404":
+          description: Investimento não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     patch:
       tags: [Investments]
       summary: Atualizar investimento
@@ -907,6 +1180,22 @@ paths:
       responses:
         "200":
           description: Investimento atualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Investment"
+        "400":
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Investimento não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     delete:
       tags: [Investments]
       summary: Deletar investimento
@@ -921,6 +1210,12 @@ paths:
       responses:
         "204":
           description: Investimento removido
+        "404":
+          description: Investimento não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /dashboard:
     get:
@@ -935,3 +1230,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DashboardSummary"
+        "401":
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"

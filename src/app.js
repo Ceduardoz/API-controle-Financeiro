@@ -13,6 +13,7 @@ import investmentRouter from "./routes/investmentRouter.js";
 import dashboardRouter from "./routes/dashboardRouter.js";
 
 import { swaggerDocument, swaggerUi } from "./routes/swagger.js";
+import userRouter from "./routes/userRouter.js";
 
 class App {
   constructor() {
@@ -30,6 +31,7 @@ class App {
     this.app.use("/", healthRouter);
 
     this.app.use("/auth", authRouter);
+    this.app.use("/user", userRouter);
     this.app.use("/account", accountRouter);
     this.app.use("/category", categoryRouter);
     this.app.use("/transactions", transactionRouter);
