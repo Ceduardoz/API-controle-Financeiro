@@ -20,9 +20,9 @@ export async function updateUser(req, res) {
 
 export async function deleteUser(req, res) {
   try {
-    const user = await deleteUserService(req.userId);
+    await deleteUserService(req.userId);
 
-    return res.status(204).send(user);
+    return res.status(200).json("Usuário deletado com sucesso");
   } catch (error) {
     return res.status(error.statusCode || 400).json({
       message: error.message || "Erro ao deletar usuário",
