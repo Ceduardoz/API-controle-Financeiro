@@ -205,3 +205,177 @@ export async function getTransaction(userId, id) {
 
   return transaction;
 }
+
+export async function updateTransaction(userId, id, data) {
+  return prisma.$transaction(async (tx) => {
+    const transaction = await tx.transaction.findFirst({
+      where: {
+        id: Number(id),
+        userId,
+      },
+    });
+
+    if (!transaction) {
+      const error = new Error("Transação não encontrada");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const newTitle = data.title !== undefined ? data.title : transaction.title;
+
+    const newDescription =
+      data.description !== undefined
+        ? data.description
+        : transaction.description;
+
+    const newAmount =
+      data.amount !== undefined
+        ? Number(data.amount)
+        : Number(transaction.amount);
+
+    const newType = data.type !== undefined ? data.type : transaction.type;
+
+    const newDate =
+      data.date !== undefined ? new Date(data.date) : transaction.date;
+
+    const newAccountId =
+      data.accountId !== undefined
+        ? Number(data.accountId)
+        : transaction.accountId;
+
+    const newCategoryId =
+      data.categoryId !== undefined
+        ? data.categoryId
+          ? Number(data.categoryId)
+          : null
+        : transaction.categoryId;
+
+    const newToAccountId =
+      data.toAccountId !== undefined
+        ? data.toAccountId
+          ? Number(data.toAccountId)
+          : null
+        : transaction.toAccountId;
+
+    if (newAmount <= 0) {
+      const error = new Error("O valor da transação deve ser maior que zero");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const account = await tx.account.findFirst({
+      where: {
+        id: newAccountId,
+        userId,
+      },
+      include: {
+        outgoingTransactions: true,
+        incomingTransactions: true,
+      },
+    });
+
+    if (!account) {
+      const error = new Error("Conta não encontrada");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (newCategoryId) {
+      const category = await tx.category.findFirst({
+        where: {
+          id: newCategoryId,
+          userId,
+        },
+      });
+
+      if (!category) {
+        const error = new Error("Categoria não encontrada");
+        error.statusCode = 404;
+        throw error;
+      }
+    }
+
+    if (newType === "TRANSFER") {
+      if (!newToAccountId) {
+        const error = new Error(
+          "Transferência exige conta de origem e destino",
+        );
+        error.statusCode = 400;
+        throw error;
+      }
+
+      if (newAccountId === newToAccountId) {
+        const error = new Error(
+          "A conta de origem e destino devem ser diferentes",
+        );
+        error.statusCode = 400;
+        throw error;
+      }
+
+      const toAccount = await tx.account.findFirst({
+        where: {
+          id: newToAccountId,
+          userId,
+        },
+      });
+
+      if (!toAccount) {
+        const error = new Error("Conta de destino não encontrada");
+        error.statusCode = 404;
+        throw error;
+      }
+    }
+
+    const accountWithoutCurrentTransaction = await tx.account.findFirst({
+      where: {
+        id: newAccountId,
+        userId,
+      },
+      include: {
+        outgoingTransactions: {
+          where: {
+            id: {
+              not: Number(id),
+            },
+          },
+        },
+        incomingTransactions: {
+          where: {
+            id: {
+              not: Number(id),
+            },
+          },
+        },
+      },
+    });
+
+    const currentBalance = calculateAccountBalance(
+      accountWithoutCurrentTransaction,
+    );
+
+    if (
+      (newType === "EXPENSE" || newType === "TRANSFER") &&
+      currentBalance < newAmount
+    ) {
+      const error = new Error("Saldo insuficiente");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    return tx.transaction.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        title: newTitle,
+        description: newDescription,
+        amount: newAmount,
+        type: newType,
+        date: newDate,
+        accountId: newAccountId,
+        categoryId: newType === "TRANSFER" ? null : newCategoryId,
+        toAccountId: newType === "TRANSFER" ? newToAccountId : null,
+      },
+    });
+  });
+}

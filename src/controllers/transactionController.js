@@ -2,8 +2,12 @@ import {
   createTransaction as createTransactionService,
   getTransactions as getTransactionsService,
   getTransaction as getTransactionService,
+  updateTransaction as updateTransactionService,
 } from "../services/transactionServices.js";
-import { createTransactionSchema } from "../schemas/transactionSchemas.js";
+import {
+  createTransactionSchema,
+  updateTransactionSchema,
+} from "../schemas/transactionSchemas.js";
 
 export async function createTransaction(req, res) {
   try {
@@ -40,5 +44,20 @@ export async function getTransaction(req, res) {
     return res.status(error.statusCode || 400).json({
       message: error.message || "Erro ao buscar transação",
     });
+  }
+}
+
+export async function updateTransaction(req, res, next) {
+  try {
+    const userId = req.userId;
+    const { id } = req.params;
+
+    const data = updateTransactionSchema.parse(req.body);
+
+    const transaction = await updateTransactionService(userId, id, data);
+
+    return res.status(200).json(transaction);
+  } catch (error) {
+    next(error);
   }
 }

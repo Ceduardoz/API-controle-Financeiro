@@ -41,3 +41,17 @@ export const createTransactionSchema = z
       });
     }
   });
+
+export const updateTransactionSchema = z.object({
+  title: z.string().min(1, "Título obrigatório").optional(),
+  description: z.string().optional().nullable(),
+  amount: z.coerce
+    .number()
+    .positive("O valor deve ser maior que zero")
+    .optional(),
+  type: z.enum(["INCOME", "EXPENSE", "TRANSFER"]).optional(),
+  date: z.coerce.date().optional(),
+  accountId: z.coerce.number().int().positive().optional(),
+  categoryId: z.coerce.number().int().positive().nullable().optional(),
+  toAccountId: z.coerce.number().int().positive().nullable().optional(),
+});
