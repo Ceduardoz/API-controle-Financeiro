@@ -379,3 +379,28 @@ export async function updateTransaction(userId, id, data) {
     });
   });
 }
+
+export async function deleteTransaction(userId, id) {
+  const transaction = await prisma.transaction.findFirst({
+    where: {
+      id: Number(id),
+      userId,
+    },
+  });
+
+  if (!transaction) {
+    const error = new Error("Transação não encontrada");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  await prisma.transaction.delete({
+    where: {
+      id: Number(id),
+    },
+  });
+
+  return {
+    message: "Transação deletada com sucesso",
+  };
+}

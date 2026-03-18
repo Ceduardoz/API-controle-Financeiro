@@ -4,7 +4,7 @@ import { updateUser, deleteUser } from "../controllers/userController.js";
 
 const userRouter = Router();
 
-userRouter.patch("/update", authMiddleware, updateUser);
-userRouter.delete("/delete", authMiddleware, deleteUser);
+userRouter.patch("/", authMiddleware, updateUser);
+userRouter.delete("/", authMiddleware, deleteUser);
 
 export default userRouter;

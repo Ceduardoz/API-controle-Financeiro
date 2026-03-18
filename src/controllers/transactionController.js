@@ -3,47 +3,49 @@ import {
   getTransactions as getTransactionsService,
   getTransaction as getTransactionService,
   updateTransaction as updateTransactionService,
+  deleteTransaction as deleteTransactionService,
 } from "../services/transactionServices.js";
+
 import {
   createTransactionSchema,
   updateTransactionSchema,
 } from "../schemas/transactionSchemas.js";
 
-export async function createTransaction(req, res) {
+export async function createTransaction(req, res, next) {
   try {
+    const userId = req.userId;
     const data = createTransactionSchema.parse(req.body);
 
-    const transaction = await createTransactionService(req.userId, data);
+    const transaction = await createTransactionService(userId, data);
 
     return res.status(201).json(transaction);
   } catch (error) {
-    return res.status(error.statusCode || 400).json({
-      message: error.message || "Erro ao criar transação",
-    });
+    next(error);
   }
 }
 
-export async function getTransactions(req, res) {
+export async function getTransactions(req, res, next) {
   try {
-    const transactions = await getTransactionsService(req.userId);
+    const userId = req.userId;
+
+    const transactions = await getTransactionsService(userId);
 
     return res.status(200).json(transactions);
   } catch (error) {
-    return res.status(error.statusCode || 400).json({
-      message: error.message || "Erro ao listar transações",
-    });
+    next(error);
   }
 }
 
-export async function getTransaction(req, res) {
+export async function getTransaction(req, res, next) {
   try {
-    const transaction = await getTransactionService(req.userId, req.params.id);
+    const userId = req.userId;
+    const { id } = req.params;
+
+    const transaction = await getTransactionService(userId, id);
 
     return res.status(200).json(transaction);
   } catch (error) {
-    return res.status(error.statusCode || 400).json({
-      message: error.message || "Erro ao buscar transação",
-    });
+    next(error);
   }
 }
 
@@ -57,6 +59,19 @@ export async function updateTransaction(req, res, next) {
     const transaction = await updateTransactionService(userId, id, data);
 
     return res.status(200).json(transaction);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function deleteTransaction(req, res, next) {
+  try {
+    const userId = req.userId;
+    const { id } = req.params;
+
+    const result = await deleteTransactionService(userId, id);
+
+    return res.status(200).json(result);
   } catch (error) {
     next(error);
   }
