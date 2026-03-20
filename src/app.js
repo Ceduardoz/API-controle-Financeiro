@@ -33,7 +33,7 @@ class App {
     this.app.use("/auth", authRouter);
     this.app.use("/user", userRouter);
     this.app.use("/account", accountRouter);
-    this.app.use("/category", categoryRouter);
+    this.app.use("/categories", categoryRouter);
     this.app.use("/transactions", transactionRouter);
     this.app.use("/recurring-transaction", recurringTransactionRouter);
     this.app.use("/investments", investmentRouter);
