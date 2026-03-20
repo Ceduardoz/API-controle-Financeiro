@@ -133,7 +133,7 @@ export async function createTransaction(userId, data) {
       const category = await tx.category.findFirst({
         where: {
           id: Number(data.categoryId),
-          userId,
+          OR: [{ userId: null }, { userId }],
         },
       });
 
@@ -284,7 +284,7 @@ export async function updateTransaction(userId, id, data) {
       const category = await tx.category.findFirst({
         where: {
           id: newCategoryId,
-          userId,
+          OR: [{ userId: null }, { userId }],
         },
       });
 
