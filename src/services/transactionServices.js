@@ -400,6 +400,8 @@ export async function deleteTransaction(userId, id) {
     },
   });
 
+  console.log("test");
+
   return {
     message: "Transação deletada com sucesso",
   };
