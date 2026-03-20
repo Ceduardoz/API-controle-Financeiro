@@ -1,10 +1,30 @@
 import prisma from "../lib/prisma.js";
 
+function normalizeName(name) {
+  return name.trim().toLowerCase();
+}
+
 export async function createCategory(userId, data) {
+  const normalizedName = normalizeName(data.name);
+
   const existingCategory = await prisma.category.findFirst({
     where: {
-      name: data.name,
-      userId,
+      OR: [
+        {
+          name: {
+            equals: normalizedName,
+            mode: "insensitive",
+          },
+          userId: null,
+        },
+        {
+          name: {
+            equals: normalizedName,
+            mode: "insensitive",
+          },
+          userId,
+        },
+      ],
     },
   });
 
@@ -16,7 +36,7 @@ export async function createCategory(userId, data) {
 
   return prisma.category.create({
     data: {
-      name: data.name,
+      name: data.name.trim(),
       userId,
     },
   });
@@ -24,10 +44,10 @@ export async function createCategory(userId, data) {
 
 export async function getCategories(userId) {
   return prisma.category.findMany({
-    where: { userId },
-    orderBy: {
-      createdAt: "desc",
+    where: {
+      OR: [{ userId: null }, { userId }],
     },
+    orderBy: [{ name: "asc" }],
   });
 }
 
@@ -35,7 +55,7 @@ export async function getCategory(userId, id) {
   const category = await prisma.category.findFirst({
     where: {
       id: Number(id),
-      userId,
+      OR: [{ userId: null }, { userId }],
     },
   });
 
@@ -63,13 +83,29 @@ export async function updateCategory(userId, id, data) {
   }
 
   if (data.name) {
+    const normalizedName = normalizeName(data.name);
+
     const existingCategory = await prisma.category.findFirst({
       where: {
-        name: data.name,
-        userId,
         NOT: {
           id: Number(id),
         },
+        OR: [
+          {
+            name: {
+              equals: normalizedName,
+              mode: "insensitive",
+            },
+            userId: null,
+          },
+          {
+            name: {
+              equals: normalizedName,
+              mode: "insensitive",
+            },
+            userId,
+          },
+        ],
       },
     });
 
@@ -85,7 +121,7 @@ export async function updateCategory(userId, id, data) {
       id: Number(id),
     },
     data: {
-      ...(data.name !== undefined && { name: data.name }),
+      ...(data.name !== undefined && { name: data.name.trim() }),
     },
   });
 }
