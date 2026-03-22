@@ -38,6 +38,7 @@ export async function createCategory(userId, data) {
     data: {
       name: data.name.trim(),
       userId,
+      categoryType: data.categoryType ?? null,
     },
   });
 }
@@ -82,7 +83,7 @@ export async function updateCategory(userId, id, data) {
     throw error;
   }
 
-  if (data.name) {
+  if (data.name !== undefined) {
     const normalizedName = normalizeName(data.name);
 
     const existingCategory = await prisma.category.findFirst({
@@ -122,6 +123,9 @@ export async function updateCategory(userId, id, data) {
     },
     data: {
       ...(data.name !== undefined && { name: data.name.trim() }),
+      ...(data.categoryType !== undefined && {
+        categoryType: data.categoryType,
+      }),
     },
   });
 }

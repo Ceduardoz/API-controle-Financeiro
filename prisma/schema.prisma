@@ -19,6 +19,11 @@ enum TransactionType {
   TRANSFER
 }
 
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
 enum RecurrenceFrequency {
   DAILY
   WEEKLY
@@ -64,16 +69,17 @@ model Account {
 }
 
 model Category {
-  id           Int         @id @default(autoincrement())
-  name         String
-  createdAt    DateTime    @default(now())
+  id                    Int                    @id @default(autoincrement())
+  name                  String
+  createdAt             DateTime               @default(now())
+  categoryType          CategoryType?
 
-  userId       Int?
-  user         User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                Int?
+  user                  User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([name, userId])
 
-  transactions Transaction[]
+  transactions          Transaction[]
   recurringTransactions RecurringTransaction[]
 }
 

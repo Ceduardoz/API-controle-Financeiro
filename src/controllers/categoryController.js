@@ -50,13 +50,10 @@ export async function getCategory(req, res) {
 
 export async function updateCategory(req, res) {
   try {
-    const data = updateCategorySchema.parse(req.body);
+    const { id } = req.params;
+    const parsedData = updateCategorySchema.parse(req.body);
 
-    const category = await updateCategoryService(
-      req.userId,
-      req.params.id,
-      data,
-    );
+    const category = await updateCategoryService(req.userId, id, parsedData);
 
     return res.status(200).json(category);
   } catch (error) {
