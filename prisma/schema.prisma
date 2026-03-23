@@ -71,9 +71,10 @@ model Account {
 model Category {
   id                    Int                    @id @default(autoincrement())
   name                  String
+  color                 String                 @default("#946afc")
   createdAt             DateTime               @default(now())
   categoryType          CategoryType?
-
+  
   userId                Int?
   user                  User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
 

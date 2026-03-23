@@ -73,7 +73,7 @@ export async function updateCategory(userId, id, data) {
   const category = await prisma.category.findFirst({
     where: {
       id: Number(id),
-      userId,
+      userId: null,
     },
   });
 
@@ -126,6 +126,7 @@ export async function updateCategory(userId, id, data) {
       ...(data.categoryType !== undefined && {
         categoryType: data.categoryType,
       }),
+      ...(data.color !== undefined && { color: data.color }),
     },
   });
 }

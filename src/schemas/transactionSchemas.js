@@ -4,7 +4,7 @@ export const createTransactionSchema = z
   .object({
     title: z.string().min(2, "O título deve ter pelo menos 2 caracteres"),
     description: z.string().optional(),
-    amount: z.number().positive("O valor deve ser maior que zero"),
+    amount: z.number().positive("O valor deve ser maior que zero").optional(),
     type: z.enum(["INCOME", "EXPENSE", "TRANSFER"]),
     date: z.string(),
     accountId: z.number().int().positive().optional(),
