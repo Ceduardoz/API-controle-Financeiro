@@ -179,21 +179,40 @@ components:
         name:
           type: string
           example: Alimentação
+        type:
+          type: string
+          enum: [INCOME, EXPENSE]
+          example: EXPENSE
+        color:
+          type: string
+          example: "#22C55E"
+          description: Cor da categoria em hexadecimal
         createdAt:
           type: string
           format: date-time
         userId:
           type: integer
+          nullable: true
           example: 1
 
     CreateCategoryRequest:
       type: object
       required:
         - name
+        - type
+        - color
       properties:
         name:
           type: string
           example: Alimentação
+        type:
+          type: string
+          enum: [INCOME, EXPENSE]
+          example: EXPENSE
+        color:
+          type: string
+          example: "#22C55E"
+          description: Cor da categoria em hexadecimal
 
     UpdateCategoryRequest:
       type: object
@@ -201,6 +220,14 @@ components:
         name:
           type: string
           example: Mercado
+        type:
+          type: string
+          enum: [INCOME, EXPENSE]
+          example: EXPENSE
+        color:
+          type: string
+          example: "#F97316"
+          description: Cor da categoria em hexadecimal
 
     Transaction:
       type: object
@@ -886,6 +913,10 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/CreateCategoryRequest"
+            example:
+              name: Alimentação
+              type: EXPENSE
+              color: "#22C55E"
       responses:
         "201":
           description: Categoria criada
@@ -949,6 +980,10 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/UpdateCategoryRequest"
+            example:
+              name: Mercado
+              type: EXPENSE
+              color: "#F97316"
       responses:
         "200":
           description: Categoria atualizada
