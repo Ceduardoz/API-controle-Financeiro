@@ -38,6 +38,7 @@ export async function createCategory(userId, data) {
     data: {
       name: data.name.trim(),
       userId,
+      color: data.color ?? "#946afc",
       categoryType: data.categoryType ?? null,
     },
   });
@@ -73,7 +74,7 @@ export async function updateCategory(userId, id, data) {
   const category = await prisma.category.findFirst({
     where: {
       id: Number(id),
-      userId: null,
+      userId,
     },
   });
 
