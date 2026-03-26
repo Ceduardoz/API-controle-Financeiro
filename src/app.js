@@ -39,6 +39,7 @@ class App {
     this.app.use("/recurring-transaction", recurringTransactionRouter);
     this.app.use("/vault", vaultRouter);
     this.app.use("/investments", investmentRouter);
+    this.app.use("/vault", vaultRouter);
     this.app.use("/dashboard", dashboardRouter);
 
     this.app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));

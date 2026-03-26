@@ -1,9 +1,14 @@
 import { Router } from "express";
+import {
+  createVault,
+  depositVault,
+  withdrawVault,
+} from "../controllers/vaultController.js";
 import authMiddleware from "../middlewares/authMiddleware.js";
-import { createVault } from "../controllers/vaultController.js";
 
-const vaultrouter = Router();
+const vaultRouter = Router();
 
-vaultrouter.post("/", authMiddleware, createVault);
+vaultRouter.post("/", authMiddleware, createVault);
+vaultRouter.post("/:id/deposit", authMiddleware, depositVault);
 
-export default vaultrouter;
+export default vaultRouter;
