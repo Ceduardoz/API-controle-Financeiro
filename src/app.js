@@ -14,6 +14,7 @@ import dashboardRouter from "./routes/dashboardRouter.js";
 
 import { swaggerDocument, swaggerUi } from "./routes/swagger.js";
 import userRouter from "./routes/userRouter.js";
+import vaultRouter from "./routes/vaultRouter.js";
 
 class App {
   constructor() {
@@ -36,6 +37,7 @@ class App {
     this.app.use("/categories", categoryRouter);
     this.app.use("/transactions", transactionRouter);
     this.app.use("/recurring-transaction", recurringTransactionRouter);
+    this.app.use("/vault", vaultRouter);
     this.app.use("/investments", investmentRouter);
     this.app.use("/dashboard", dashboardRouter);
 
