@@ -6,11 +6,10 @@ datasource db {
   provider = "postgresql"
 }
 
+// --- ENUMS ---
 enum AccountType {
   CHECKING
   SAVINGS
-  VAULT
-  INVESTMENT
 }
 
 enum TransactionType {
@@ -31,6 +30,12 @@ enum RecurrenceFrequency {
   YEARLY
 }
 
+enum VaultStatus {
+  ACTIVE
+  COMPLETED
+  CANCELED
+}
+
 enum InvestmentType {
   CDB
   CDI
@@ -38,29 +43,31 @@ enum InvestmentType {
   LCA
 }
 
+// --- MODELS ---
 model User {
-  id           Int       @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   name         String
-  email        String    @unique
+  email        String   @unique
   passwordHash String
-  createdAt    DateTime  @default(now())
+  createdAt    DateTime @default(now())
 
-  accounts       Account[]
-  categories     Category[]
-  transactions   Transaction[]
+  accounts              Account[]
+  categories            Category[]
+  transactions          Transaction[]
   recurringTransactions RecurringTransaction[]
-  investiments Investment[]
+  investments           Investment[] 
+  vaults                Vault[]       
 }
 
 model Account {
-  id                   Int           @id @default(autoincrement())
-  name                 String
-  type                 AccountType
-  initialBalance       Decimal       @db.Decimal(12, 2)
-  createdAt            DateTime      @default(now())
+  id             Int         @id @default(autoincrement())
+  name           String
+  type           AccountType
+  initialBalance Decimal     @db.Decimal(12, 2)
+  createdAt      DateTime    @default(now())
 
-  userId               Int
-  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   outgoingTransactions Transaction[] @relation("FromAccount")
   incomingTransactions Transaction[] @relation("ToAccount")
@@ -69,14 +76,14 @@ model Account {
 }
 
 model Category {
-  id                    Int                    @id @default(autoincrement())
-  name                  String
-  color                 String                 @default("#946afc")
-  createdAt             DateTime               @default(now())
-  categoryType          CategoryType?
-  
-  userId                Int?
-  user                  User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           Int           @id @default(autoincrement())
+  name         String
+  color        String        @default("#946afc")
+  createdAt    DateTime      @default(now())
+  categoryType CategoryType?
+
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([name, userId])
 
@@ -93,60 +100,88 @@ model Transaction {
   date        DateTime
   createdAt   DateTime        @default(now())
 
-  userId      Int
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  accountId   Int?
-  account     Account?        @relation("FromAccount", fields: [accountId], references: [id])
+  // Relações com Contas
+  accountId Int?
+  account   Account? @relation("FromAccount", fields: [accountId], references: [id])
 
   toAccountId Int?
-  toAccount   Account?        @relation("ToAccount", fields: [toAccountId], references: [id])
+  toAccount   Account? @relation("ToAccount", fields: [toAccountId], references: [id])
 
-  categoryId  Int?
-  category    Category?       @relation(fields: [categoryId], references: [id])
+  vaultId Int?
+  vault   Vault? @relation("FromVault", fields: [vaultId], references: [id])
+
+  toVaultId Int?
+  toVault   Vault? @relation("ToVault", fields: [toVaultId], references: [id])
+
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id])
 
   recurringTransactionID Int?
-  recurringTransaction RecurringTransaction? @relation(fields: [recurringTransactionID], references: [id]) 
+  recurringTransaction   RecurringTransaction? @relation(fields: [recurringTransactionID], references: [id])
 }
 
 model RecurringTransaction {
-  id           Int                 @id @default(autoincrement())
-  title        String
-  description  String?
-  amount       Decimal             @db.Decimal(12, 2)
-  type         TransactionType
-  frequency    RecurrenceFrequency
-  dayOfMonth   Int?
-  dayOfWeek    Int?
-  monthOfYear  Int?
-  startDate    DateTime
-  endDate      DateTime?
-  isActive     Boolean             @default(true)
-  lastRunAt    DateTime?
-  createdAt    DateTime            @default(now())
+  id          Int                 @id @default(autoincrement())
+  title       String
+  description String?
+  amount      Decimal             @db.Decimal(12, 2)
+  type        TransactionType
+  frequency   RecurrenceFrequency
+  dayOfMonth  Int?
+  dayOfWeek   Int?
+  monthOfYear Int?
+  startDate   DateTime
+  endDate     DateTime?
+  isActive    Boolean             @default(true)
+  lastRunAt   DateTime?
+  createdAt   DateTime            @default(now())
 
-  userId       Int
-  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  accountId    Int
-  account      Account             @relation(fields: [accountId], references: [id])
+  accountId Int
+  account   Account @relation(fields: [accountId], references: [id])
 
-  categoryId   Int?
-  category     Category?           @relation(fields: [categoryId], references: [id])
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id])
 
   transactions Transaction[]
 }
 
-model Investment {
-  id              Int            @id @default(autoincrement())
-  name            String
-  type            InvestmentType
-  institution     String?
-  investedAmount  Decimal        @db.Decimal(12,2)
-  annualRate      Decimal        @db.Decimal(5,2) // taxa anual (%)
-  startDate       DateTime
-  createdAt       DateTime       @default(now())
+model Vault {
+  id           Int         @id @default(autoincrement())
+  name         String
+  description  String?
+  color        String      @default("#7c3aed")
+  balance      Decimal     @default(0) @db.Decimal(12, 2)
+  targetAmount Decimal?    @db.Decimal(12, 2)
+  targetDate   DateTime?
+  status       VaultStatus @default(ACTIVE)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
-  userId          Int
-  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  incomingTransactions Transaction[] @relation("ToVault")
+  outgoingTransactions Transaction[] @relation("FromVault")
+
+  @@index([userId])
+}
+
+model Investment {
+  id             Int            @id @default(autoincrement())
+  name           String
+  type           InvestmentType
+  institution    String?
+  investedAmount Decimal        @db.Decimal(12, 2)
+  annualRate     Decimal        @db.Decimal(5, 2)
+  startDate      DateTime
+  createdAt      DateTime       @default(now())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
