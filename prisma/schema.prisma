@@ -9,8 +9,6 @@ datasource db {
 enum AccountType {
   CHECKING
   SAVINGS
-  VAULT
-  INVESTMENT
 }
 
 enum TransactionType {
@@ -31,6 +29,12 @@ enum RecurrenceFrequency {
   YEARLY
 }
 
+enum VaultStatus {
+  ACTIVE
+  COMPLETED
+  CANCELED
+}
+
 enum InvestmentType {
   CDB
   CDI
@@ -49,18 +53,20 @@ model User {
   categories     Category[]
   transactions   Transaction[]
   recurringTransactions RecurringTransaction[]
-  investiments Investment[]
+  investiments   Investment[]
+
+  vaults         Vault[] 
 }
 
 model Account {
-  id                   Int           @id @default(autoincrement())
-  name                 String
-  type                 AccountType
-  initialBalance       Decimal       @db.Decimal(12, 2)
-  createdAt            DateTime      @default(now())
+  id             Int           @id @default(autoincrement())
+  name           String
+  type           AccountType
+  Balance        Decimal       @db.Decimal(12, 2)
+  createdAt      DateTime      @default(now())
 
-  userId               Int
-  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   outgoingTransactions Transaction[] @relation("FromAccount")
   incomingTransactions Transaction[] @relation("ToAccount")
@@ -69,14 +75,14 @@ model Account {
 }
 
 model Category {
-  id                    Int                    @id @default(autoincrement())
+  id                    Int       @id @default(autoincrement())
   name                  String
-  color                 String                 @default("#946afc")
-  createdAt             DateTime               @default(now())
+  color                 String    @default("#946afc")
+  createdAt             DateTime  @default(now())
   categoryType          CategoryType?
-  
+
   userId                Int?
-  user                  User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                  User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([name, userId])
 
@@ -102,11 +108,42 @@ model Transaction {
   toAccountId Int?
   toAccount   Account?        @relation("ToAccount", fields: [toAccountId], references: [id])
 
+  fromVaultId Int?
+  fromVault   Vault?          @relation("FromVault", fields: [fromVaultId], references: [id])
+
+  toVaultId   Int?
+  toVault     Vault?          @relation("ToVault", fields: [toVaultId], references: [id])
+
   categoryId  Int?
   category    Category?       @relation(fields: [categoryId], references: [id])
 
   recurringTransactionID Int?
   recurringTransaction RecurringTransaction? @relation(fields: [recurringTransactionID], references: [id]) 
+}
+
+model Vault {
+  id          Int             @id @default(autoincrement())
+  name        String
+  description String?
+  color       String          @default("#946afc")
+
+
+  balance     Decimal         @db.Decimal(12,2) @default(0)
+  targetAmount Decimal?       @db.Decimal(12,2)
+
+  targetDate  DateTime?
+  status      VaultStatus      @default(ACTIVE)
+
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  userId      Int
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  incomingTransactions Transaction[] @relation("ToVault")
+  outgoingTransactions Transaction[] @relation("FromVault")
+
+  @@index([userId])
 }
 
 model RecurringTransaction {
@@ -143,7 +180,7 @@ model Investment {
   type            InvestmentType
   institution     String?
   investedAmount  Decimal        @db.Decimal(12,2)
-  annualRate      Decimal        @db.Decimal(5,2) // taxa anual (%)
+  annualRate      Decimal        @db.Decimal(5,2)
   startDate       DateTime
   createdAt       DateTime       @default(now())
 
