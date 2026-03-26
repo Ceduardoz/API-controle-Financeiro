@@ -1,7 +1,6 @@
 import {
   createVaultServices,
   depositVaultServices,
-  withdrawVaultServices,
 } from "../services/vaultServices.js";
 import {
   createVaultSchema,
@@ -18,7 +17,7 @@ export async function createVault(req, res) {
   } catch (error) {
     return res
       .status(400)
-      .json({ error: error.message || "Erro ao criar vault" });
+      .json({ error: error.message || "Erro ao criar cofre" });
   }
 }
 

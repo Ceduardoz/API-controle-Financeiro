@@ -10,9 +10,3 @@ export const createVaultSchema = z.object({
   targetAmount: z.number().positive().optional(),
   targetDate: z.string().datetime().optional(),
 });
-
-export const depositWithdrawSchema = z.object({
-  accountId: z.number().int("ID da conta inválido"),
-  amount: z.number().positive("O valor deve ser maior que zero"),
-  title: z.string().min(1, "O título da transferência é obrigatório"),
-});
