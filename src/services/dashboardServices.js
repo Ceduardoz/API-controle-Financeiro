@@ -2,45 +2,56 @@ import prisma from "../lib/prisma.js";
 import { calculateAccountBalance } from "../utils/calculateAccountBalance.js";
 
 export async function getDashboardSummary(userId) {
-  const accounts = await prisma.account.findMany({
-    where: { userId },
-    include: {
-      outgoingTransactions: true,
-      incomingTransactions: true,
-    },
-  });
+  const [accounts, vaults, investments, expenseTransactions] =
+    await Promise.all([
+      prisma.account.findMany({
+        where: { userId },
+        include: {
+          outgoingTransactions: true,
+          incomingTransactions: true,
+        },
+      }),
+      prisma.vault.findMany({
+        where: { userId },
+      }),
+      prisma.investment.findMany({
+        where: { userId },
+      }),
+      prisma.transaction.findMany({
+        where: {
+          userId,
+          type: "EXPENSE",
+        },
+      }),
+    ]);
 
-  const transactions = await prisma.transaction.findMany({
-    where: { userId },
-  });
+  // 1. Saldo em Contas
+  const accountBalance = accounts.reduce((acc, account) => {
+    return acc + calculateAccountBalance(account);
+  }, 0);
 
-  let accountBalance = 0;
-  let vault = 0;
-  let expenses = 0;
-  let investments = 0;
+  // 2. Saldo total nos Cofres (Caixinhas)
+  const vaultTotal = vaults.reduce((acc, vault) => {
+    return acc + Number(vault.balance);
+  }, 0);
 
-  for (const account of accounts) {
-    const balance = calculateAccountBalance(account);
+  // 3. Saldo total em Investimentos
+  const investmentTotal = investments.reduce((acc, inv) => {
+    return acc + Number(inv.investedAmount);
+  }, 0);
 
-    if (account.type === "VAULT") {
-      vault += balance;
-    } else if (account.type === "INVESTMENT") {
-      investments += balance;
-    } else {
-      accountBalance += balance;
-    }
-  }
-
-  for (const transaction of transactions) {
-    if (transaction.type === "EXPENSE") {
-      expenses += Number(transaction.amount);
-    }
-  }
+  // 4. Soma das Despesas
+  const totalExpenses = expenseTransactions.reduce((acc, trans) => {
+    return acc + Number(trans.amount);
+  }, 0);
 
   return {
     accountBalance: Number(accountBalance.toFixed(2)),
-    expenses: Number(expenses.toFixed(2)),
-    vault: Number(vault.toFixed(2)),
-    investments: Number(investments.toFixed(2)),
+    expenses: Number(totalExpenses.toFixed(2)),
+    vault: Number(vaultTotal.toFixed(2)),
+    investments: Number(investmentTotal.toFixed(2)),
+    totalNetWorth: Number(
+      (accountBalance + vaultTotal + investmentTotal).toFixed(2),
+    ), // Patrimônio Total
   };
 }
