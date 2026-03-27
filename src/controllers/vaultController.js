@@ -1,6 +1,7 @@
 import {
   createVaultServices,
   depositVaultServices,
+  withdrawVaultServices,
 } from "../services/vaultServices.js";
 import {
   createVaultSchema,
@@ -34,5 +35,21 @@ export async function depositVault(req, res) {
     });
   } catch (error) {
     return res.status(400).json({ error: error.message });
+  }
+}
+
+export async function withdrawVault(req, res) {
+  try {
+    const { id } = req.params;
+    const userId = req.userId;
+    const data = depositWithdrawSchema.parse(req.body);
+
+    const result = await withdrawVaultServices(userId, Number(id), data);
+    return res.json({
+      message: "Resgate realizado com sucesso!",
+      ...result,
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 }
