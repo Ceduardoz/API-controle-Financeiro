@@ -90,3 +90,30 @@ export async function withdrawVaultServices(
     });
   });
 }
+
+export async function getVaultsService(userId) {
+  return await prisma.vault.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function deleteVaultService(userId, vaultId) {
+  const vault = await prisma.vault.findUnique({
+    where: { id: vaultId },
+  });
+
+  if (!vault || vault.userId !== userId) {
+    throw new Error("Caixinha não encontrada");
+  }
+
+  if (Number(vault.balance) > 0) {
+    throw new Error(
+      "Não é possível deletar uma caixinha com saldo. Resgate o valor para uma conta primeiro.",
+    );
+  }
+
+  return await prisma.vault.delete({
+    where: { id: vaultId },
+  });
+}

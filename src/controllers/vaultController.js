@@ -2,6 +2,8 @@ import {
   createVaultServices,
   depositVaultServices,
   withdrawVaultServices,
+  getVaultsService,
+  deleteVaultService,
 } from "../services/vaultServices.js";
 import {
   createVaultSchema,
@@ -51,5 +53,30 @@ export async function withdrawVault(req, res) {
     });
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+}
+
+export async function listVaults(req, res) {
+  try {
+    const userId = req.userId;
+    const vaults = await getVaultsService(userId);
+    return res.json(vaults);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: "Erro ao buscar a lista de caixinhas" });
+  }
+}
+
+export async function deleteVault(req, res) {
+  try {
+    const { id } = req.params;
+    const userId = req.userId;
+
+    await deleteVaultService(userId, Number(id));
+
+    return res.status(204).send();
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
 }
