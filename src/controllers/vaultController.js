@@ -3,6 +3,7 @@ import {
   depositVaultServices,
   withdrawVaultServices,
   getVaultsService,
+  getVaultByIdService,
   deleteVaultService,
 } from "../services/vaultServices.js";
 import {
@@ -65,6 +66,21 @@ export async function listVaults(req, res) {
     return res
       .status(500)
       .json({ error: "Erro ao buscar a lista de caixinhas" });
+  }
+}
+
+export async function getByIdVault(req, res) {
+  try {
+    const { id } = req.params;
+    const userId = req.userId;
+
+    const vault = await getVaultByIdService(userId, Number(id));
+
+    return res.json(vault);
+  } catch (error) {
+    return res.status(error.status || 400).json({
+      error: error.message || "Erro ao buscar cofre",
+    });
   }
 }
 

@@ -98,6 +98,21 @@ export async function getVaultsService(userId) {
   });
 }
 
+export async function getVaultByIdService(id, userId) {
+  const vault = await prisma.vault.findFirst({
+    where: {
+      id,
+      userId,
+    },
+  });
+
+  if (!vault) {
+    throw { message: "Cofre não encontrado", status: 404 };
+  }
+
+  return vault;
+}
+
 export async function deleteVaultService(userId, vaultId) {
   const vault = await prisma.vault.findUnique({
     where: { id: vaultId },
