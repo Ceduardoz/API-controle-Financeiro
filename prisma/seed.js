@@ -2,21 +2,23 @@ import prisma from "../src/lib/prisma.js";
 
 async function main() {
   const categories = [
-    "Salário",
-    "Alimentação",
-    "Transporte",
-    "Moradia",
-    "Saúde",
-    "Lazer",
-    "Educação",
-    "Assinaturas",
-    "Outros",
+    // receitas
+    { name: "Salário", categoryType: "INCOME", color: "#22c55e" },
+
+    // Despesas
+    { name: "Alimentação", categoryType: "EXPENSE", color: "#ef4444" },
+    { name: "Transporte", categoryType: "EXPENSE", color: "#bd6019" },
+    { name: "Moradia", categoryType: "EXPENSE", color: "#3b82f6" },
+    { name: "Saúde", categoryType: "EXPENSE", color: "#ebc817" },
+    { name: "Lazer", categoryType: "EXPENSE", color: "#f59e0b" },
+    { name: "Educação", categoryType: "EXPENSE", color: "#6366f1" },
+    { name: "Outros", categoryType: "EXPENSE", color: "#94a3b8" },
   ];
 
-  for (const name of categories) {
+  for (const cat of categories) {
     const existing = await prisma.category.findFirst({
       where: {
-        name,
+        name: cat.name,
         userId: null,
       },
     });
@@ -24,21 +26,25 @@ async function main() {
     if (!existing) {
       await prisma.category.create({
         data: {
-          name,
+          name: cat.name,
+          categoryType: cat.categoryType,
+          color: cat.color,
           userId: null,
         },
       });
+    } else {
+      await prisma.category.update({
+        where: { id: existing.id },
+        data: {
+          categoryType: cat.categoryType,
+          color: cat.color,
+        },
+      });
+      console.log(`🔄 Categoria atualizada: ${cat.name}`);
     }
   }
 
-  console.log("Categorias globais criadas 🚀");
+  console.log("Categorias globais sincronizadas com sucesso! 🚀");
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+main();
