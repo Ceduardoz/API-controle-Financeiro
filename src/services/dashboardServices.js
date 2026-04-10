@@ -1,9 +1,14 @@
 import prisma from "../lib/prisma.js";
-import { calculateAccountBalance } from "../utils/calculateAccountBalance.js";
+import {
+  calculateAccountBalance,
+  calculateAvailableBalance,
+} from "../utils/calculateAccountBalance.js";
 
 export async function getDashboardSummary(userId) {
+  const idFormatado = Number(userId);
+
   const accounts = await prisma.account.findMany({
-    where: { userId },
+    where: { userId: idFormatado },
     include: {
       outgoingTransactions: true,
       incomingTransactions: true,
@@ -11,7 +16,7 @@ export async function getDashboardSummary(userId) {
   });
 
   const transactions = await prisma.transaction.findMany({
-    where: { userId },
+    where: { userId: idFormatado },
   });
 
   let accountBalance = 0;
@@ -20,14 +25,14 @@ export async function getDashboardSummary(userId) {
   let investments = 0;
 
   for (const account of accounts) {
-    const balance = calculateAccountBalance(account);
-
-    if (account.type === "VAULT") {
-      vault += balance;
-    } else if (account.type === "INVESTMENT") {
-      investments += balance;
+    if (account.type === "INVESTMENT") {
+      investments += calculateAccountBalance(account);
     } else {
-      accountBalance += balance;
+      const available = calculateAvailableBalance(account);
+      const reserved = Number(account.reservedBalance || 0);
+
+      accountBalance += available;
+      vault += reserved;
     }
   }
 
