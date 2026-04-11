@@ -1,4 +1,5 @@
 import { z } from "zod";
+import colorSchema from "./colorSchemas.js";
 
 export const createGoalSchema = z.object({
   name: z.string().min(2, "O nome da meta deve ter pelo menos 2 caracteres"),
@@ -8,6 +9,7 @@ export const createGoalSchema = z.object({
     .number()
     .int()
     .positive("É necessário vincular a meta a uma conta"),
+  color: colorSchema.optional(),
 });
 
 export const updateGoalSchema = z.object({
@@ -20,4 +22,5 @@ export const updateGoalSchema = z.object({
     .number()
     .positive("O valor da meta deve ser maior que zero")
     .optional(),
+  color: colorSchema.optional(),
 });

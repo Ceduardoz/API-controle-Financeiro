@@ -22,6 +22,7 @@ export async function createGoal(userId, data) {
       description: data.description,
       targetAmount: Number(data.targetAmount),
       accountId: Number(data.accountId),
+      color: data.color,
     },
   });
 }
@@ -96,6 +97,7 @@ export async function updateGoal(userId, id, data) {
         data.targetAmount !== undefined
           ? Number(data.targetAmount)
           : goal.targetAmount,
+      color: data.color !== undefined ? data.color : goal.color,
     },
   });
 }
