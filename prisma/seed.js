@@ -40,11 +40,8 @@ async function main() {
           color: cat.color,
         },
       });
-      console.log(`🔄 Categoria atualizada: ${cat.name}`);
     }
   }
-
-  console.log("Categorias globais sincronizadas com sucesso! 🚀");
 }
 
 main();

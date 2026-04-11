@@ -9,6 +9,7 @@ import accountRouter from "./routes/accountRouter.js";
 import categoryRouter from "./routes/categoryRouter.js";
 import transactionRouter from "./routes/transactionRouter.js";
 import recurringTransactionRouter from "./routes/recurringTransactionRouter.js";
+import goalRouter from "./routes/goalRouter.js";
 import investmentRouter from "./routes/investmentRouter.js";
 import dashboardRouter from "./routes/dashboardRouter.js";
 
@@ -36,6 +37,7 @@ class App {
     this.app.use("/categories", categoryRouter);
     this.app.use("/transactions", transactionRouter);
     this.app.use("/recurring-transaction", recurringTransactionRouter);
+    this.app.use("/goals", goalRouter);
     this.app.use("/investments", investmentRouter);
     this.app.use("/dashboard", dashboardRouter);
 
