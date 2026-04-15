@@ -3,49 +3,41 @@ import {
   calculateAccountBalance,
   calculateAvailableBalance,
 } from "../utils/calculateAccountBalance.js";
+// IMPORTANTE: Importe a função de cálculo diário que criamos
+import { calculateInvestmentValue } from "../utils/calculateInvestmentValue.js";
 
 export async function getDashboardSummary(userId) {
   const idFormatado = Number(userId);
 
-  const accounts = await prisma.account.findMany({
-    where: { userId: idFormatado },
+  const user = await prisma.user.findUnique({
+    where: { id: idFormatado },
     include: {
-      outgoingTransactions: true,
-      incomingTransactions: true,
+      accounts: {
+        include: {
+          outgoingTransactions: true,
+          incomingTransactions: true,
+        },
+      },
+      transactions: true,
+      investiments: true, // Mantenha o "i" extra aqui para o Prisma reconhecer
     },
   });
 
-  const transactions = await prisma.transaction.findMany({
-    where: { userId: idFormatado },
-  });
+  if (!user) return null;
 
-  let accountBalance = 0;
-  let vault = 0;
-  let expenses = 0;
-  let investments = 0;
+  let totalInvestmentsValue = 0;
 
-  for (const account of accounts) {
-    if (account.type === "INVESTMENT") {
-      investments += calculateAccountBalance(account);
-    } else {
-      const available = calculateAvailableBalance(account);
-      const reserved = Number(account.reservedBalance || 0);
+  // ... (outras somas de conta e vault)
 
-      accountBalance += available;
-      vault += reserved;
-    }
-  }
-
-  for (const transaction of transactions) {
-    if (transaction.type === "EXPENSE") {
-      expenses += Number(transaction.amount);
+  // Use o nome exato que está no seu model User
+  if (user.investiments) {
+    for (const inv of user.investiments) {
+      totalInvestmentsValue += calculateInvestmentValue(inv);
     }
   }
 
   return {
-    accountBalance: Number(accountBalance.toFixed(2)),
-    expenses: Number(expenses.toFixed(2)),
-    vault: Number(vault.toFixed(2)),
-    investments: Number(investments.toFixed(2)),
+    // ... restando dos retornos
+    investments: Number(totalInvestmentsValue.toFixed(2)),
   };
 }
