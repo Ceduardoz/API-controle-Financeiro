@@ -3,7 +3,6 @@ import {
   calculateAccountBalance,
   calculateAvailableBalance,
 } from "../utils/calculateAccountBalance.js";
-// IMPORTANTE: Importe a função de cálculo diário que criamos
 import { calculateInvestmentValue } from "../utils/calculateInvestmentValue.js";
 
 export async function getDashboardSummary(userId) {
@@ -19,25 +18,42 @@ export async function getDashboardSummary(userId) {
         },
       },
       transactions: true,
-      investiments: true, // Mantenha o "i" extra aqui para o Prisma reconhecer
+      investiments: true,
     },
   });
 
-  if (!user) return null;
+  if (!user) throw new Error("Usuário não encontrado");
 
+  let accountBalance = 0;
+  let vault = 0;
+  let expenses = 0;
   let totalInvestmentsValue = 0;
 
-  // ... (outras somas de conta e vault)
+  for (const account of user.accounts) {
+    if (account.type === "INVESTMENT") {
+      totalInvestmentsValue += calculateAccountBalance(account);
+    } else {
+      accountBalance += calculateAvailableBalance(account);
+      vault += Number(account.reservedBalance || 0);
+    }
+  }
 
-  // Use o nome exato que está no seu model User
-  if (user.investiments) {
+  if (user.investiments && user.investiments.length > 0) {
     for (const inv of user.investiments) {
       totalInvestmentsValue += calculateInvestmentValue(inv);
     }
   }
 
+  for (const transaction of user.transactions) {
+    if (transaction.type === "EXPENSE") {
+      expenses += Number(transaction.amount);
+    }
+  }
+
   return {
-    // ... restando dos retornos
+    accountBalance: Number(accountBalance.toFixed(2)),
+    expenses: Number(expenses.toFixed(2)),
+    vault: Number(vault.toFixed(2)),
     investments: Number(totalInvestmentsValue.toFixed(2)),
   };
 }
