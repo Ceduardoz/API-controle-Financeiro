@@ -24,7 +24,12 @@ class App {
   }
 
   middleware() {
-    this.app.use(cors());
+    this.app.use(
+      cors([
+        "http://localhost:5173",
+        "https://controle-financas-git-main-carlos-eduardos-projects-18731550.vercel.app/",
+      ]),
+    );
     this.app.use(express.json());
   }
 
