@@ -13,7 +13,7 @@ export function calculateInvestmentValue(investment) {
   const amount = Number(investment.investedAmount);
   const percentOfCDI = Number(investment.annualRate);
 
-  const CDI_ANUAL = 14.65 / 100;
+  const CDI_ANUAL = 12.15 / 100;
 
   const effectiveAnnualRate = CDI_ANUAL * (percentOfCDI / 100);
 
