@@ -1,8 +1,5 @@
 import prisma from "../lib/prisma.js";
-import {
-  calculateAccountBalance,
-  calculateAvailableBalance,
-} from "../utils/calculateAccountBalance.js";
+import { calculateAvailableBalance } from "../utils/calculateAccountBalance.js";
 import { calculateInvestmentValue } from "../utils/calculateInvestmentValue.js";
 
 export async function getDashboardSummary(userId) {
@@ -30,9 +27,7 @@ export async function getDashboardSummary(userId) {
   let totalInvestmentsValue = 0;
 
   for (const account of user.accounts) {
-    if (account.type === "INVESTMENT") {
-      totalInvestmentsValue += calculateAccountBalance(account);
-    } else {
+    if (account.type !== "INVESTMENT") {
       accountBalance += calculateAvailableBalance(account);
       vault += Number(account.reservedBalance || 0);
     }
